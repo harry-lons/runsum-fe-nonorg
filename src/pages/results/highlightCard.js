@@ -11,7 +11,7 @@ class HighlightCard extends Component {
             borderRadius: 4,
             boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)',
             width: '100%', 
-            maxWidth:'100vw',
+            maxWidth:'60vw',
             margin: '16px auto', // Added margin for vertical spacing and center alignment
             transition: 'transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out',
             textAlign: 'left', // Left-align text inside the card
@@ -22,8 +22,8 @@ class HighlightCard extends Component {
         };
 
         const typographyStyles = {
-            highlight: { fontSize: '2.0rem', fontWeight: 700, marginBottom: 1 },
-            mainTitle: { fontSize: '1.8rem', fontWeight: 700, marginBottom: 1 },
+            highlight: { fontSize: '2.0rem', fontWeight: 700, marginBottom: 1, whiteSpace: 'normal' },
+            mainTitle: { fontSize: '1.8rem', fontWeight: 700, marginBottom: 1, whiteSpace: 'normal' , wordWrap: 'break-word' },
             subText: { fontSize: '1rem', color: '#b0b8c0', marginBottom: '0.25rem' },
             dataText: { fontSize: '1rem', color: '#e0e7ed' },
         };
@@ -44,7 +44,7 @@ class HighlightCard extends Component {
                                 <Typography sx={typographyStyles.dataText}>Pace (min/mi): {data['Pace']}</Typography>
                                 <Typography sx={typographyStyles.dataText}>Moving Time: {data['Moving Time']}</Typography>
                                 <Typography sx={typographyStyles.dataText}>Achievement Count: {data['Achievement Count']}</Typography>
-                                {(this.props.sport == 'allSports') ?
+                                {(this.props.sport === 'allSports') ?
                                     <Typography sx={typographyStyles.dataText}>Sport: {data['Sport']}</Typography>
                                     : null
                                 }

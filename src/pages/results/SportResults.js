@@ -17,7 +17,7 @@ class SportResults extends Component {
                     Summary Stats
                 </div>
                 <div className='section-break' />
-                <Grid2 container spacing={3} justifyContent="center" sx={{ ml: 10, mr: 10 }}>
+                <Grid2 container spacing={0} justifyContent="center" sx={{ ml: 5, mr: 5 }}>
                     {Object.entries(data.stats).map(([key, value]) => (
                         <StatCard
                             key={key} // Unique key for each card
