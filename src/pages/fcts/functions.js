@@ -1,4 +1,10 @@
-export async function getAllInfo(accessToken) {
+export async function getAllInfo(accessToken, MAX_CONCURRENT_REQUESTS) {
+    /* Number of activities requested in each call 
+        Better performance could be achieved with smaller pages, but it's important to be mindful of strava's rate limits. 
+        Fetching 200 activities typically takes around 2 seconds, an acceptable latency 
+    */
+    const PER_PAGE = 200;
+
     let allActivities = [];
     try {
         const startDate = localStorage.getItem('startDate');
@@ -16,36 +22,50 @@ export async function getAllInfo(accessToken) {
         let hasMore = true;
 
         while (hasMore) {
-            // Make the API call
-            const response = await fetch(`https://www.strava.com/api/v3/athlete/activities?after=${sdEpoch}&before=${edEpoch}&page=${page}&per_page=200&nocache=${new Date().getTime()}`, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': 'Bearer ' + accessToken,
-                },
-            });
-
-            console.log("got one batch");
-
-            // Check if the response is successful (status code 200-299)
-            if (!response.ok) {
-                console.error("response not ok!");
-                throw new Error('Network response was not ok');
+            const promises = [];
+            // Fetch the next set of pages concurrently
+            for (let i = 0; i < MAX_CONCURRENT_REQUESTS; i++) {
+                const currentPage = page + i;
+                promises.push(fetch(
+                    `https://www.strava.com/api/v3/athlete/activities?after=${sdEpoch}&before=${edEpoch}&page=${currentPage}&per_page=${PER_PAGE}&nocache=${new Date().getTime()}`, 
+                    {
+                        method: 'GET',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': 'Bearer ' + accessToken,
+                        },
+                    }
+                ));
             }
+            // Wait for every promise to return
+            const responses = await Promise.all(promises);
 
-            // Parse the response body as JSON
-            const activities = await response.json();
+            // Parse the results
+            const activitiesBatch = await Promise.all(
+                responses.map(async response => {
+                    if (response.ok) return response.json();
+                    else throw new Error('Failed to fetch activities');
+                })
+            );
 
-            // If there are activities in the response, add them to the allActivities array
-            if (activities.length > 0) {
-                console.log("incrementing page: ", page);
-                allActivities = allActivities.concat(activities);
-                page++; // Increment the page number for the next request
+            // Flatten and merge all valid activity arrays
+            const newActivities = activitiesBatch.flat();
+            allActivities = allActivities.concat(newActivities);
+
+            // Stop if any of the batches returned an empty list
+            if (activitiesBatch.some(batch => batch.length === 0)) {
+                // we have fetched all relevant activities
+                hasMore = false;
             } else {
-                console.log("all done");
-                hasMore = false; // No more activities to fetch
+                // console.log("No batch length was 0. Batch lengths:");
+                // activitiesBatch.forEach((batch, index) => {
+                //     console.log(`Batch ${index + 1} length: ${batch.length}`);
+                // });
+                // console.log(`Moving to pages ${page} to ${page + MAX_CONCURRENT_REQUESTS - 1}`);
+                page += MAX_CONCURRENT_REQUESTS;
             }
         }
+
 
         // Handle or return the collected activities
         console.log(allActivities);
@@ -56,11 +76,12 @@ export async function getAllInfo(accessToken) {
         return false;
     }
     try {
-        var payload = {};
-        payload['allSports'] = await extractAllSportMetrics(allActivities, accessToken);
-        payload['run'] = await extractRunMetrics(allActivities, accessToken);
-        payload['ride'] = await extractBikeMetrics(allActivities, accessToken);
-        payload['swim'] = await extractSwimMetrics(allActivities, accessToken);
+        const payload = {
+            allSports: await extractAllSportMetrics(allActivities, accessToken),
+            run: await extractRunMetrics(allActivities, accessToken),
+            ride: await extractBikeMetrics(allActivities, accessToken),
+            swim: await extractSwimMetrics(allActivities, accessToken),
+        };
         console.log(payload);
         return payload;
     }
