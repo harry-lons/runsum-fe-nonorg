@@ -20,14 +20,30 @@ class App extends Component {
   getAccessToken = () => {
     return this.state.accessToken;
   }
-  // Method for handling logout
+  // Handle logout by sending an empty request to the logout endpoint which will clear the cookie for us
   logout = () => {
     console.log('logging out');
-    localStorage.removeItem("accessToken");
-    localStorage.removeItem("refreshToken");
-    localStorage.removeItem("startDate");
-    localStorage.removeItem("endDate");
     window.location.href = '/';
+    let payload = {};
+    let endpointURL = process.env.REACT_APP_BACKEND_URL + '/logout';
+    return fetch(endpointURL, {
+        method: 'POST',
+        body: JSON.stringify(payload),
+        headers: {
+            'Content-Type': 'application/json',
+            Accept: 'application/json'
+        },
+        credentials: 'include' // include cookie
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+    })
+    .catch(error => {
+        // Handle errors
+        console.error('Error during logout:', error);
+    });
   };
 
   render() {
