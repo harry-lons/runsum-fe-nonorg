@@ -7,6 +7,7 @@ import Footer from './pages/std/footer';
 import Landing from './pages/Landing';
 import NeedLogin from './pages/needLogin';
 import Results from './pages/Results';
+import Remembered from './pages/Remembered'
 import FAQ from './pages/FAQ';
 
 class App extends Component {
@@ -27,23 +28,23 @@ class App extends Component {
     let payload = {};
     let endpointURL = process.env.REACT_APP_BACKEND_URL + '/logout';
     return fetch(endpointURL, {
-        method: 'POST',
-        body: JSON.stringify(payload),
-        headers: {
-            'Content-Type': 'application/json',
-            Accept: 'application/json'
-        },
-        credentials: 'include' // include cookie
+      method: 'POST',
+      body: JSON.stringify(payload),
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json'
+      },
+      credentials: 'include' // include cookie
     })
-    .then(response => {
+      .then(response => {
         if (!response.ok) {
-            throw new Error('Network response was not ok');
+          throw new Error('Network response was not ok');
         }
-    })
-    .catch(error => {
+      })
+      .catch(error => {
         // Handle errors
         console.error('Error during logout:', error);
-    });
+      });
   };
 
   render() {
@@ -51,16 +52,32 @@ class App extends Component {
     return (
       <div className="App">
         <Routes>
-          <Route path="/" element={<Home />} />
+          <Route path="/" element={<Home
+            setAccessToken={this.setAccessToken} />
+          } />
           <Route path="/about" element={<About />} />
           <Route
             path="/landing"
-            element={<Landing logout={this.logout} setAccessToken={this.setAccessToken} getAccessToken={this.getAccessToken} />}
+            element={<Landing
+              logout={this.logout}
+              setAccessToken={this.setAccessToken}
+              getAccessToken={this.getAccessToken}
+            />}
           />
           <Route path="/needlogin" element={<NeedLogin />} />
           <Route
             path="/results"
-            element={<Results logout={this.logout} getAccessToken={this.getAccessToken} />}
+            element={<Results
+              logout={this.logout}
+              getAccessToken={this.getAccessToken}
+            />}
+          />
+          <Route
+            path="/remembered"
+            element={<Remembered
+              logout={this.logout}
+            />
+            }
           />
           <Route
             path="/FAQ"

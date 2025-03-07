@@ -1,7 +1,7 @@
 import Button from '@mui/material/Button';
 import React, { Component } from 'react';
 
-class About extends Component {
+class NeedLogin extends Component {
 
     handleLoginClick = () => {
         window.location.href = '/';
@@ -25,4 +25,4 @@ class About extends Component {
     }
 }
 
-export default About;
+export default NeedLogin;
