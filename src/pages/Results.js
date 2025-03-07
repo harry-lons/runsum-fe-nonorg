@@ -96,7 +96,7 @@ class Results extends Component {
         }
         // refresh our access token
         try {
-            // TODO: adjust the concurrent_requests based on the timeline length for better performance 
+            // TODO: dynamically adjust the concurrent_requests based on the timeline length for better performance 
             // (we don't need to send a ton of requests for smaller time frames, but for all time maybe increase to 10
             const concurrent_requests = 5;
             const result = await getAllInfo(accessToken, concurrent_requests);
