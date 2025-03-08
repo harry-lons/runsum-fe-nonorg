@@ -12,7 +12,7 @@ class Remembered extends Component {
     }
     
     render() {
-        const name = "harry";
+        const name = this.props.getFirstName();
         return (
             <div className='about-page' style={{ justifyContent: 'center' }}>
                 <div className='about-header'>
