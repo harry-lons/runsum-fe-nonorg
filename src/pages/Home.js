@@ -36,7 +36,7 @@ function Home(props) {
             const data = await response.json();
             if (data?.access_token) { // Optional chaining to avoid undefined errors
                 console.log("Successfully refreshed token.");
-                return data.access_token;
+                return data;
                 // Do something with the token, like saving it to state or context
             } else {
                 console.error("No access token in response (weird)");
@@ -51,10 +51,11 @@ function Home(props) {
     useEffect(() => {
         // validate refresh token if exists
         const fetchToken = async () => {
-            const token = await validateRefreshToken();
-            if (token !== "") {
-                props.setAccessToken(token);
-                navigate('/remembered'); // This works now ✅
+            const resp = await validateRefreshToken();
+            if (resp !== "") {
+                props.setAccessToken(resp.access_token);
+                props.setFirstName(resp.first_name);
+                navigate('/remembered'); 
             }
         };
     

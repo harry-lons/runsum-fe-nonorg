@@ -13,6 +13,7 @@ import FAQ from './pages/FAQ';
 class App extends Component {
   state = {
     accessToken: "",
+    firstName: ""
   };
   setAccessToken = (newToken) => {
     console.log("setting access token");
@@ -20,6 +21,12 @@ class App extends Component {
   };
   getAccessToken = () => {
     return this.state.accessToken;
+  };
+  getFirstName = () => {
+    return this.state.firstName;
+  }
+  setFirstName = (newFirstName) => {
+    this.setState({ firstName: newFirstName });
   }
   // Handle logout by sending an empty request to the logout endpoint which will clear the cookie for us
   logout = () => {
@@ -53,7 +60,8 @@ class App extends Component {
       <div className="App">
         <Routes>
           <Route path="/" element={<Home
-            setAccessToken={this.setAccessToken} />
+            setAccessToken={this.setAccessToken}
+            setFirstName={this.setFirstName} />
           } />
           <Route path="/about" element={<About />} />
           <Route
@@ -76,6 +84,7 @@ class App extends Component {
             path="/remembered"
             element={<Remembered
               logout={this.logout}
+              getFirstName={this.getFirstName}
             />
             }
           />
