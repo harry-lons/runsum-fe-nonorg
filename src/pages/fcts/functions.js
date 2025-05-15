@@ -1,3 +1,5 @@
+import extractGraphData from './graphs.js'
+
 export async function getAllInfo(accessToken, MAX_CONCURRENT_REQUESTS) {
     /* Number of activities requested in each call 
         Better performance could be achieved with smaller pages, but it's important to be mindful of strava's rate limits. 
@@ -81,6 +83,7 @@ export async function getAllInfo(accessToken, MAX_CONCURRENT_REQUESTS) {
             run: await extractRunMetrics(allActivities, accessToken),
             ride: await extractBikeMetrics(allActivities, accessToken),
             swim: await extractSwimMetrics(allActivities, accessToken),
+            graphs: await extractGraphData(allActivities)
         };
         console.log(payload);
         return payload;
