@@ -18,53 +18,13 @@ export async function getAllInfo(accessToken, MAX_CONCURRENT_REQUESTS) {
         const edEpoch = Math.floor(endDateConverted.getTime() / 1000);
         console.log('startDate: ', sdEpoch);
         console.log('endDate', edEpoch);
-        let page = 1;
-        let hasMore = true;
-
-        while (hasMore) {
-            const promises = [];
-            // Fetch the next set of pages concurrently
-            for (let i = 0; i < MAX_CONCURRENT_REQUESTS; i++) {
-                const currentPage = page + i;
-                promises.push(fetch(
-                    `https://www.strava.com/api/v3/athlete/activities?after=${sdEpoch}&before=${edEpoch}&page=${currentPage}&per_page=${PER_PAGE}&nocache=${new Date().getTime()}`, 
-                    {
-                        method: 'GET',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Authorization': 'Bearer ' + accessToken,
-                        },
-                    }
-                ));
-            }
-            // Wait for every promise to return
-            const responses = await Promise.all(promises);
-
-            // Parse the results
-            const activitiesBatch = await Promise.all(
-                responses.map(async response => {
-                    if (response.ok) return response.json();
-                    else throw new Error('Failed to fetch activities');
-                })
-            );
-
-            // Flatten and merge all valid activity arrays
-            const newActivities = activitiesBatch.flat();
-            allActivities = allActivities.concat(newActivities);
-
-            // Stop if any of the batches returned an empty list
-            if (activitiesBatch.some(batch => batch.length === 0)) {
-                // we have fetched all relevant activities
-                hasMore = false;
-            } else {
-                // console.log("No batch length was 0. Batch lengths:");
-                // activitiesBatch.forEach((batch, index) => {
-                //     console.log(`Batch ${index + 1} length: ${batch.length}`);
-                // });
-                // console.log(`Moving to pages ${page} to ${page + MAX_CONCURRENT_REQUESTS - 1}`);
-                page += MAX_CONCURRENT_REQUESTS;
-            }
+        
+        // fetch activities from the backend
+        const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/fetch_activities?after=${sdEpoch}&before=${edEpoch}`);
+        if (!response.ok) {
+            throw new Error('Failed to fetch activities');
         }
+        allActivities = await response.json();
 
 
         // Handle or return the collected activities
