@@ -27,7 +27,7 @@ export async function getAllInfo(accessToken, MAX_CONCURRENT_REQUESTS) {
         allActivities = await response.json();
 
 
-        // Handle or return the collected activities
+        // Sanity check TODO remove
         console.log(allActivities);
 
     } catch (error) {

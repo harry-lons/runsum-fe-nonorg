@@ -1,254 +1,143 @@
-import React, { Component } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import Button from '@mui/material/Button';
-import { ClipLoader } from 'react-spinners'; // Import the spinner from the library
+import { ClipLoader } from 'react-spinners';
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import { Navigate } from 'react-router-dom';
+import { Navigate, useNavigate } from 'react-router-dom';
+import AuthProvider, { AuthContext } from '../AuthContext';
 
-class Landing extends Component {
-    state = {
-        loading: true,
-        startDate: null,
-        data: null,
-        endDate: null,
-        enterBothWarning: false,
-        dateOrderWarning: false,
-        redirectToResults: false,
-        redirectToNeedLogin: false,
-    };
-    async setStartDate(date) {
-        console.log(typeof(date));
-        await this.setState({
-            startDate: date
-        });
-    }
-    
-    async setEndDate(date) {
-        // Switch endDate from start of selected day to end of selected day
+const Landing = ({ logout }) => {
+    const [loading, setLoading] = useState(true);
+    const [startDate, setStartDate] = useState(null);
+    const [endDate, setEndDate] = useState(null);
+    const [enterBothWarning, setEnterBothWarning] = useState(false);
+    const [dateOrderWarning, setDateOrderWarning] = useState(false);
+    const [redirectToResults, setRedirectToResults] = useState(false);
+    const [redirectToNeedLogin, setRedirectToNeedLogin] = useState(false);
+
+    const authContext = useContext(AuthContext);
+    const navigate = useNavigate();
+
+    // This hook replaces componentDidMount
+    useEffect(() => {
+        const handleLogin = async () => {
+            try {
+                const searchParams = new URLSearchParams(window.location.search);
+                if (searchParams.has('code')) {
+                    const loginResult = await authContext.login(searchParams.get('code'));
+                    console.log(authContext.isAuthenticated);
+                }
+            } catch (error) {
+                console.error('Error during login process:', error);
+                // navigate('/needlogin');
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        handleLogin();
+    }, []); // Only run on mount
+
+    useEffect(() => {
+        console.log("Auth context changed:", authContext);
+    }, [authContext]); // context changes
+
+    const handleSetEndDate = (date) => {
         const endOfDay = new Date(date);
         endOfDay.setHours(23, 59, 59, 999);
+        setEndDate(endOfDay);
+    };
 
-        await this.setState({
-            endDate: endOfDay
-        });
-    }
+    const handleSetFromPreset = (dates) => {
+        setStartDate(dates[0]);
+        handleSetEndDate(dates[1]);
+    };
 
-    async setFromPreset(dates){
-        await this.setStartDate(dates[0]);
-        await this.setEndDate(dates[1]);
-    }
-
-
-    async getTokenFromCode(codeValue) {
-        let payload = {
-            code: codeValue,
-        }
-        let endpointURL = process.env.REACT_APP_BACKEND_URL + '/get-token';
-        return fetch(endpointURL, {
-            method: 'POST',
-            body: JSON.stringify(payload),
-            headers: {
-                'Content-Type': 'application/json',
-                Accept: 'application/json'
-            },
-            credentials: 'include' // include cookie
-
-        })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                return response.json(); // Parse response body as JSON
-            })
-            .then(data => {
-                // Handle successful response data
-                return data;
-            })
-            .catch(error => {
-                // Handle errors
-                console.error('Error during token exchange:', error);
-            });
-    }
-
-    async updateToken() {
-        let payload = {}
-        let endpointURL = process.env.REACT_APP_BACKEND_URL + '/refresh-token';
-        return fetch(endpointURL, {
-            method: 'POST',
-            body: JSON.stringify(payload),
-            headers: {
-                'Content-Type': 'application/json',
-                Accept: 'application/json',
-            },
-            credentials: 'include' // include cookie
-        })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                return response.json(); // Parse response body as JSON
-            })
-            .then(data => {
-                // Handle successful response data
-                return data;
-            })
-            .catch(error => {
-                // Handle errors
-                console.error('Error during getting new token:', error);
-            });
-
-    }
-
-    async componentDidMount() {
-        console.log('requesting from ', process.env.REACT_APP_BACKEND_URL);
-        try {
-            const searchParams = new URLSearchParams(window.location.search);
-
-            if (searchParams.has('code')) {
-                const data = await this.getTokenFromCode(searchParams.get('code'));
-                if (data && data['access_token']) {
-                    // successful code for token exchange
-                    this.props.setAccessToken(data['access_token']);
-                } else {
-                    console.error('No token in response');
-                    // Code failed. try to update token from existing
-                    const tokenRefreshResult = await this.updateToken();
-                    if (!(tokenRefreshResult && tokenRefreshResult['access_token'])) {
-                        console.error("token for token unsuccessful. redirecting to needlogin");
-                        this.setState({ redirectToNeedLogin: true });
-                    }
-                    else {
-                        console.log("token for token successful");
-                        this.props.setAccessToken(tokenRefreshResult['access_token']);
-                    }
-                }
-            } else {
-                // handle no code case. try to update token from existing
-                const tokenRefreshResult = await this.updateToken();
-                if (!(tokenRefreshResult && tokenRefreshResult['access_token'])) {
-                    console.error("token for token unsuccessful. redirecting to needlogin");
-                    this.setState({ redirectToNeedLogin: true });
-                }
-                else {
-                    console.log("token for token successful");
-                    this.props.setAccessToken(tokenRefreshResult['access_token']);
-                }
-            }
-        } catch (error) {
-            console.error('Error generating client:', error);
-        } finally {
-            this.setState({ loading: false });
-        }
-    }
-
-
-    handleContinue = () => {
-        if (!(this.state.startDate && this.state.endDate)) {
-            this.setState({ enterBothWarning: true });
+    const handleContinue = () => {
+        if (!startDate || !endDate) {
+            setEnterBothWarning(true);
+            setDateOrderWarning(false);
             console.log('WARNING: enter both dates');
-        }
-        else {
-            if (this.state.startDate >= this.state.endDate) {
-                this.setState({ enterBothWarning: false });
-                this.setState({ dateOrderWarning: true });
-                console.log('WARNING: bad date order');
-            }
-            else {
-                console.log('both entered');
-                localStorage.setItem('startDate', this.state.startDate);
-                localStorage.setItem('endDate', this.state.endDate);
-                this.setState({ redirectToResults: true });
-            }
+        } else if (startDate >= endDate) {
+            setEnterBothWarning(false);
+            setDateOrderWarning(true);
+            console.log('WARNING: bad date order');
+        } else {
+            console.log('both entered');
+            localStorage.setItem('startDate', startDate);
+            localStorage.setItem('endDate', endDate);
+            setRedirectToResults(true);
         }
     };
 
-    handleLogout = () => {
-        const { logout } = this.props;
-        if (logout) {
-            logout(); // Call the passed logout function
-        }
-    };
-
-    render() {
-        if (this.state.redirectToResults) {
-            // update access token again
-            try {
-                this.updateToken();
-            }
-            catch (e) {
-                console.error('Couldn\'t refresh token on render. redirecting');
-                this.setState({ redirectToNeedLogin: true });
-            }
-            return <Navigate to="/results" />;
-        }
-        else if (this.state.redirectToNeedLogin) {
-            return <Navigate to="/needlogin" />;
-        }
-        const now = new Date();
-        const startOfYear = new Date(now.getFullYear(), 0, 1);
-        const startOfLastYear = new Date(now.getFullYear() - 1, 0, 1);
-        const endOfLastYear = new Date(now.getFullYear() - 1, 11, 31);
-        // arbitrary date before anyone's strava account would be created
-        const janFirst2000 = new Date(2000, 0, 1);
-        const presets = {
-            'Year-to-date': [startOfYear, now],
-            '3 months': [new Date(now.getFullYear(), now.getMonth() - 3, now.getDate()), now],
-            '6 months': [new Date(now.getFullYear(), now.getMonth() - 6, now.getDate()), now],
-            '12 months': [new Date(now.getFullYear(), now.getMonth() - 12, now.getDate()), now],
-            'Last year': [startOfLastYear, endOfLastYear],
-            'All time': [janFirst2000, now]
-        };
-        const { loading, data, startDate, endDate, enterBothWarning, dateOrderWarning } = this.state;
-
-        return (
-
-            <div className="landing-page">
-                {loading ? (
-                    <div className="spinner-container">
-                        <ClipLoader color="#3498db" loading={loading} size={60} />
-                        <p style={{color:'#ffffff'}}>Validating login...</p>
-                    </div>
-                ) : (
-                    <div className='picker-container'>
-                        <p>Choose dates to calculate summary statistics. </p>
-                        <p>Either choose a preset, enter as MM/DD/YYYY or select from the pickers</p>
-                        <p>Presets:</p>
-                        <div className='presets-container'>
-                            {
-                                Object.entries(presets).map(([key, value]) => (
-                                    <Button className='preset' onClick={() => this.setFromPreset(value)} key={key}>
-                                        {key}
-                                    </Button>
-                                ))
-                            }
-                        </div>
-                        <p style={{ marginBottom: 5 }}>Start Date:</p>
-                        <DatePicker placeholderText='MM/DD/YYYY' selected={startDate} onChange={(date) => this.setStartDate(date)} value={startDate} selectsStart startDate={startDate} endDate={endDate} maxDate={new Date()} />
-                        {startDate &&
-                            (
-                                <div>
-                                    <p style={{ marginBottom: 5 }}>End Date:</p>
-                                    <DatePicker placeholderText='MM/DD/YYYY' selected={endDate} onChange={(date) => this.setEndDate(date)} value={endDate} selectsEnd startDate={startDate} endDate={endDate} minDate={startDate} maxDate={new Date()} />
-                                </div>
-                            )
-                        }
-                        {enterBothWarning && (
-                            <div style={{ color: '#B3BAA0' }}><p>Enter both start and end dates</p></div>
-                        )}
-                        {dateOrderWarning && (
-                            <div style={{ color: '#B3BAA0' }}><p>End date must be at least 1 day after start date</p></div>
-                        )}
-                        {(startDate && endDate) &&
-                            (
-                                <Button className='logout' onClick={this.handleContinue}>Continue</Button>
-                            )
-                        }
-                        <Button className='logout' onClick={this.handleLogout}>Log out</Button>
-                    </div>
-                )}
-            </div>
-        );
+    if (redirectToResults) {
+        // The original component had an `updateToken` call here. This might be a side effect
+        // that's better handled elsewhere, but for a direct conversion, we can
+        // call it before the return or within a useEffect with a dependency on redirectToResults
+        // or simply remove it if it's no longer necessary.
+        return <Navigate to="/results" />;
     }
-}
+
+    if (redirectToNeedLogin) {
+        return <Navigate to="/needlogin" />;
+    }
+
+    const now = new Date();
+    const startOfYear = new Date(now.getFullYear(), 0, 1);
+    const startOfLastYear = new Date(now.getFullYear() - 1, 0, 1);
+    const endOfLastYear = new Date(now.getFullYear() - 1, 11, 31);
+    const janFirst2000 = new Date(2000, 0, 1);
+
+    const presets = {
+        'Year-to-date': [startOfYear, now],
+        '3 months': [new Date(now.getFullYear(), now.getMonth() - 3, now.getDate()), now],
+        '6 months': [new Date(now.getFullYear(), now.getMonth() - 6, now.getDate()), now],
+        '12 months': [new Date(now.getFullYear(), now.getMonth() - 12, now.getDate()), now],
+        'Last year': [startOfLastYear, endOfLastYear],
+        'All time': [janFirst2000, now]
+    };
+
+    return (
+        <div className="landing-page">
+            {loading ? (
+                <div className="spinner-container">
+                    <ClipLoader color="#3498db" loading={loading} size={60} />
+                    <p style={{ color: '#ffffff' }}>Validating login...</p>
+                </div>
+            ) : (
+                <div className='picker-container'>
+                    <p>Choose dates to calculate summary statistics. </p>
+                    <p>Either choose a preset, enter as MM/DD/YYYY or select from the pickers</p>
+                    <p>Presets:</p>
+                    <div className='presets-container'>
+                        {Object.entries(presets).map(([key, value]) => (
+                            <Button className='preset' onClick={() => handleSetFromPreset(value)} key={key}>
+                                {key}
+                            </Button>
+                        ))}
+                    </div>
+                    <p style={{ marginBottom: 5 }}>Start Date:</p>
+                    <DatePicker placeholderText='MM/DD/YYYY' selected={startDate} onChange={(date) => setStartDate(date)} value={startDate} selectsStart startDate={startDate} endDate={endDate} maxDate={new Date()} />
+                    {startDate && (
+                        <div>
+                            <p style={{ marginBottom: 5 }}>End Date:</p>
+                            <DatePicker placeholderText='MM/DD/YYYY' selected={endDate} onChange={handleSetEndDate} value={endDate} selectsEnd startDate={startDate} endDate={endDate} minDate={startDate} maxDate={new Date()} />
+                        </div>
+                    )}
+                    {enterBothWarning && (
+                        <div style={{ color: '#B3BAA0' }}><p>Enter both start and end dates</p></div>
+                    )}
+                    {dateOrderWarning && (
+                        <div style={{ color: '#B3BAA0' }}><p>End date must be at least 1 day after start date</p></div>
+                    )}
+                    {(startDate && endDate) && (
+                        <Button className='logout' onClick={handleContinue}>Continue</Button>
+                    )}
+                    <Button className='logout' onClick={logout}>Log out</Button>
+                </div>
+            )}
+        </div>
+    );
+};
 
 export default Landing;

@@ -1,6 +1,6 @@
-
 // Returns true if the user is authenticated, false otherwise
-function is_authenticated() {
+// used when a user returns and has token in cookie, even if state/context is lost
+export function is_authenticated() {
     // send a request to the backend to check if we are authenticated
     let endpointURL = process.env.REACT_APP_BACKEND_URL + '/is-authenticated';
     return fetch(endpointURL, {
@@ -8,7 +8,87 @@ function is_authenticated() {
         headers: {
             'Content-Type': 'application/json',
             Accept: 'application/json',
+            'Access-Control-Allow-Origin': '*',
         },
         credentials: 'include' // include cookie
     })
+}
+
+// Handle logout by sending an empty request to the logout endpoint which will clear the cookie for us
+export const logout = () => {
+    window.location.href = '/';
+    let payload = {};
+    let endpointURL = process.env.REACT_APP_BACKEND_URL + '/auth/logout';
+    return fetch(endpointURL, {
+        method: 'POST',
+        body: JSON.stringify(payload),
+        headers: {
+            'Content-Type': 'application/json',
+            Accept: 'application/json',
+            'Access-Control-Allow-Origin': '*',
+        },
+        credentials: 'include' // include cookie
+    })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+        })
+        .catch(error => {
+            // Handle errors
+            console.error('Error during logout:', error);
+        });
+};
+
+export async function loginWithCode(codeValue) {
+    let payload = {
+        code: codeValue,
+    };
+    let endpointURL = process.env.REACT_APP_BACKEND_URL + '/auth/login';
+    try {
+        const response = await fetch(endpointURL, {
+            method: 'POST',
+            body: JSON.stringify(payload),
+            headers: {
+                'Content-Type': 'application/json',
+                Accept: 'application/json',
+                'Access-Control-Allow-Origin': '*',
+            },
+            credentials: 'include' // include cookie so it can be set
+        });
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        const data = await response.json();
+        console.log(data);
+        return data;
+    } catch (error) {
+        console.error('Error during token exchange:', error);
+        return null;
+    }
+}
+
+export async function whoAmI() {
+    let endpointURL = process.env.REACT_APP_BACKEND_URL + '/auth/whoami';
+    try {
+        const response = await fetch(endpointURL, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                Accept: 'application/json',
+                'Access-Control-Allow-Origin': '*',
+            },
+            credentials: 'include' // include cookie so it can be sent
+        });
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        const data = await response.json();
+        console.log(data);
+        return data;
+    }
+    catch (error) {
+        console.error('Error during whoami:', error);
+        return null;
+    }
 }
