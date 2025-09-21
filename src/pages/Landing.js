@@ -18,28 +18,9 @@ const Landing = ({ logout }) => {
     const authContext = useContext(AuthContext);
     const navigate = useNavigate();
 
-    // This hook replaces componentDidMount
-    useEffect(() => {
-        const handleLogin = async () => {
-            try {
-                const searchParams = new URLSearchParams(window.location.search);
-                if (searchParams.has('code')) {
-                    const loginResult = await authContext.login(searchParams.get('code'));
-                    console.log(authContext.isAuthenticated);
-                }
-            } catch (error) {
-                console.error('Error during login process:', error);
-                // navigate('/needlogin');
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        handleLogin();
-    }, []); // Only run on mount
-
     useEffect(() => {
         console.log("Auth context changed:", authContext);
+        setLoading(false)
     }, [authContext]); // context changes
 
     const handleSetEndDate = (date) => {

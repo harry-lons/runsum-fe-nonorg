@@ -1,5 +1,6 @@
 import { createContext, useEffect, useState } from "react";
 import { logout, loginWithCode, whoAmI } from './pages/fcts/apiUtils.js';
+import { useNavigate } from 'react-router-dom';
 
 export const AuthContext = createContext(null);
 
@@ -9,32 +10,85 @@ export default function AuthProvider({ children }) {
     const [firstName, setFirstName] = useState("");
     const [id, setID] = useState("");
 
-    const login = (code) => {
-        console.log("Logging in with code:", code);
+    // Try logging in 
+    // 1. Try to log in from JWT saved to cookie
+    // 2. Else try to log in from code in URL bar (on login to landing page)
+    // 3. Else redirect to need login page
+    const login = async () => {
+        // Try to log in from JWT saved to cookie
+        const i_am = await whoAmI().then(data => {
+            if (data != null && data['success']) {
+                // success
+                // console.log(data)
+                setFirstName(data['first_name'])
+                setID(data['id'])
+                setIsAuthenticated(true)
+                console.log("done setting")
+                return true
+
+            }
+            else {
+                return false
+            }
+        });
+
+        if (i_am) {
+            // we got an auth state from existing token, return early
+            return true
+        }
+
+        // try getting & using code from url instead
+        const searchParams = new URLSearchParams(window.location.search);
+        let code = ""
+        if (searchParams.has('code')) {
+            code = searchParams.get('code');
+        }
+        else return false // no code found in url
+
+        // console.log("Logging in with code:", code);
         return loginWithCode(code).then(data => {
             if (data && data['success']) {
                 // success
-                setIsAuthenticated(true);
                 if (data['first_name'] && data['id']) {
                     setFirstName(data['first_name']);
                 }
                 else throw new Error('Missing first_name or id in login response');
-                
-                return data;
+
+                setIsAuthenticated(true);
+                return true;
             } else {
+                // code failed
+                console.error("logging in with code failed")
                 setIsAuthenticated(false);
                 setFirstName("");
-                // window.location.href = '/needlogin'; // redirect to needlogin page
-                return null;
+                return false;
             }
         });
     }
 
+    const navigate = useNavigate()
     useEffect(() => {
-        // fetch auth context from JWT cookie on mount
-        const i_am = whoAmI().then(data => {
-            return data;
-        });
+        // if we are on the /needlogin page, don't even try to log in
+        if (window.location.pathname === "/needlogin") return;
+
+        const doLogin = async () => {
+            try {
+                const success = await login();
+                if (!success) {
+                    // prompt the user to go through strava OAUTH again
+                    window.location.href = "/needlogin";
+                }
+                else if(window.location.pathname === "/"){
+                    navigate("/remembered")
+                }
+            }
+            catch (Exception) {
+                window.location.href = "/needlogin";
+            }
+        };
+
+        doLogin()
+
     }, []);
 
     return (

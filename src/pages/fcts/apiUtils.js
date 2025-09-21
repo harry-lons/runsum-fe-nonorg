@@ -68,6 +68,12 @@ export async function loginWithCode(codeValue) {
     }
 }
 
+function getCookie(name) {
+  const value = `; ${document.cookie}`;
+  const parts = value.split(`; ${name}=`);
+  if (parts.length === 2) return parts.pop().split(';').shift();
+}
+
 export async function whoAmI() {
     let endpointURL = process.env.REACT_APP_BACKEND_URL + '/auth/whoami';
     try {
@@ -77,14 +83,15 @@ export async function whoAmI() {
                 'Content-Type': 'application/json',
                 Accept: 'application/json',
                 'Access-Control-Allow-Origin': '*',
+                'X-CSRF-TOKEN': getCookie('csrf_access_token'),
             },
             credentials: 'include' // include cookie so it can be sent
         });
         if (!response.ok) {
-            throw new Error('Network response was not ok');
+            // user not authenticated
+            return null
         }
         const data = await response.json();
-        console.log(data);
         return data;
     }
     catch (error) {
