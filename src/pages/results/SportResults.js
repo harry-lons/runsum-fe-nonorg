@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { Grid2 } from '@mui/material';
 import StatCard from './statCard';
 import HighlightCard from './highlightCard';
+import Graphs from './Graphs';
 
 class SportResults extends Component {
     render() {
@@ -26,6 +27,11 @@ class SportResults extends Component {
                         />
                     ))}
                 </Grid2>
+                <div className='section-header'>
+                    Graphs
+                </div>
+                <div className='section-break' />
+                <Graphs activities={data.activities} sport={this.props.sport} />
                 <div className='section-header'>
                     Highlights
                 </div>
