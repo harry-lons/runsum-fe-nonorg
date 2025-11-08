@@ -30,19 +30,12 @@ class App extends Component {
             <Route path="/about" element={<About />} />
             <Route
               path="/landing"
-              element={<Landing
-                logout={this.logout}
-                setAccessToken={this.setAccessToken}
-                getAccessToken={this.getAccessToken}
-              />}
+              element={<Landing/>}
             />
             <Route path="/needlogin" element={<NeedLogin />} />
             <Route
               path="/results"
-              element={<Results
-                logout={this.logout}
-                getAccessToken={this.getAccessToken}
-              />}
+              element={<Results/>}
             />
             <Route
               path="/remembered"

@@ -1,9 +1,4 @@
-export async function getAllInfo(accessToken, MAX_CONCURRENT_REQUESTS) {
-    /* Number of activities requested in each call 
-        Better performance could be achieved with smaller pages, but it's important to be mindful of strava's rate limits. 
-        Fetching 200 activities typically takes around 2 seconds, an acceptable latency 
-    */
-    const PER_PAGE = 200;
+export async function getAllInfo() {
 
     let allActivities = [];
     try {
@@ -20,7 +15,7 @@ export async function getAllInfo(accessToken, MAX_CONCURRENT_REQUESTS) {
         console.log('endDate', edEpoch);
         
         // fetch activities from the backend
-        const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/fetch_activities?after=${sdEpoch}&before=${edEpoch}`);
+        const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/activities?after=${sdEpoch}&before=${edEpoch}`);
         if (!response.ok) {
             throw new Error('Failed to fetch activities');
         }
@@ -44,10 +39,10 @@ export async function getAllInfo(accessToken, MAX_CONCURRENT_REQUESTS) {
 
     try {
         const payload = {
-            allSports: await extractAllSportMetrics(allActivities, accessToken),
-            run: await extractRunMetrics(allActivities, accessToken),
-            ride: await extractBikeMetrics(allActivities, accessToken),
-            swim: await extractSwimMetrics(allActivities, accessToken),
+            allSports: await extractAllSportMetrics(allActivities),
+            run: await extractRunMetrics(allActivities),
+            ride: await extractBikeMetrics(allActivities),
+            swim: await extractSwimMetrics(allActivities),
             firstActivityDate: allActivities.length > 0 ? allActivities[allActivities.length - 1].start_date_local : null,
         };
         console.log(payload);

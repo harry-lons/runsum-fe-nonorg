@@ -89,17 +89,10 @@ class Results extends Component {
         if (!localStorage.getItem('endDate')) {
             window.location.href = '/landing';
         }
-        const accessToken = await this.props.getAccessToken();
-        if (!accessToken) {
-            console.log("no access token :(");
-            this.setState({ redirectToLanding: true })
-        }
+        
         // refresh our access token
         try {
-            // TODO: dynamically adjust the concurrent_requests based on the timeline length for better performance 
-            // (we don't need to send a ton of requests for smaller time frames, but for all time maybe increase to 10
-            const concurrent_requests = 5;
-            const result = await getAllInfo(accessToken, concurrent_requests);
+            const result = await getAllInfo();
             if (result && result['allSports']) {
                 console.log("setting result state with function data");
                 this.setState({ data: result });

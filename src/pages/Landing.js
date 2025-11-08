@@ -6,7 +6,7 @@ import "react-datepicker/dist/react-datepicker.css";
 import { Navigate, useNavigate } from 'react-router-dom';
 import AuthProvider, { AuthContext } from '../AuthContext';
 
-const Landing = ({ logout }) => {
+const Landing = () => {
     const [loading, setLoading] = useState(true);
     const [startDate, setStartDate] = useState(null);
     const [endDate, setEndDate] = useState(null);
@@ -52,10 +52,6 @@ const Landing = ({ logout }) => {
     };
 
     if (redirectToResults) {
-        // The original component had an `updateToken` call here. This might be a side effect
-        // that's better handled elsewhere, but for a direct conversion, we can
-        // call it before the return or within a useEffect with a dependency on redirectToResults
-        // or simply remove it if it's no longer necessary.
         return <Navigate to="/results" />;
     }
 
@@ -114,7 +110,7 @@ const Landing = ({ logout }) => {
                     {(startDate && endDate) && (
                         <Button className='logout' onClick={handleContinue}>Continue</Button>
                     )}
-                    <Button className='logout' onClick={logout}>Log out</Button>
+                    <Button className='logout' onClick={authContext.logout}>Log out</Button>
                 </div>
             )}
         </div>

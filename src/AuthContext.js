@@ -74,12 +74,18 @@ export default function AuthProvider({ children }) {
         const doLogin = async () => {
             try {
                 const success = await login();
-                if (!success) {
+                if(window.location.pathname === "/"){
+                    if(success){
+                        navigate("/remembered")
+                    }
+                    else {
+                        // do not go to needlogin
+                        return true
+                    }
+                }
+                else if (!success) {
                     // prompt the user to go through strava OAUTH again
                     window.location.href = "/needlogin";
-                }
-                else if(window.location.pathname === "/"){
-                    navigate("/remembered")
                 }
             }
             catch (Exception) {
