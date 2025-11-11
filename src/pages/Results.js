@@ -64,11 +64,16 @@ class Results extends Component {
             fontSize: theme.typography.pxToRem(15),
             marginRight: theme.spacing(0),
             color: 'rgba(255, 255, 255, 0.7)',
+            minWidth: { xs: 60, sm: 90 },
+            padding: { xs: '6px 8px', sm: '6px 12px' },
             '&.Mui-selected': {
                 color: '#fff',
             },
             '&.Mui-focusVisible': {
                 backgroundColor: 'rgba(100, 95, 228, 0.32)',
+            },
+            [theme.breakpoints.down('sm')]: {
+                fontSize: theme.typography.pxToRem(13),
             },
         }),
     );
@@ -141,7 +146,16 @@ class Results extends Component {
                                 {swims && <this.StyledTab label="Swim" />}
                             </this.StyledTabs>
                         </this.TabsContainer>
-                        <Typography color='#c0c8d0' sx={{ mt: 2 }}>From {startDate.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })} to {endDate.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}:</Typography>
+                        <Typography 
+                            color='#c0c8d0' 
+                            sx={{ 
+                                mt: 2, 
+                                fontSize: { xs: '0.875rem', sm: '1rem' },
+                                px: { xs: 2, sm: 0 }
+                            }}
+                        >
+                            From {startDate.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })} to {endDate.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}:
+                        </Typography>
                         {currentTab === 0 && (
                             <SportResults data={data['allSports']} sport='allSports' />
                         )}
@@ -154,10 +168,17 @@ class Results extends Component {
                         {currentTab === 3  &&  (
                             <SportResults data={data['swim']} sport='swim' />
                         )}
-                        <p style={{ color: '#FFFFFF' }}>Got questions? Check out the <a a style={{ color: '#FC4C02' }} target='_blank' rel='noreferrer' href='/FAQ'>
+                        <Typography 
+                            sx={{ 
+                                color: '#FFFFFF', 
+                                fontSize: { xs: '0.875rem', sm: '1rem' },
+                                px: { xs: 2, sm: 0 }
+                            }}
+                        >
+                            Got questions? Check out the <a style={{ color: '#FC4C02' }} target='_blank' rel='noreferrer' href='/FAQ'>
                                 FAQ
                             </a>
-                        </p>
+                        </Typography>
                         <div className='buttons-container'>
                             <Button className='actionButtons' onClick={this.handleNewTimeRange}>New Time Range</Button>
                             <Button className='actionButtons' onClick={this.handleLogout}>Log out</Button>

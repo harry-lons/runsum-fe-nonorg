@@ -11,10 +11,10 @@ class HighlightCard extends Component {
             borderRadius: 4,
             boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)',
             width: '100%', 
-            maxWidth:'60vw',
-            margin: '16px auto', // Added margin for vertical spacing and center alignment
+            maxWidth: { xs: '95vw', sm: '85vw', md: '70vw', lg: '60vw' },
+            margin: '16px auto',
             transition: 'transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out',
-            textAlign: 'left', // Left-align text inside the card
+            textAlign: 'left',
             '&:hover': {
                 transform: 'translateY(-4px)',
                 boxShadow: '0 8px 16px rgba(100, 95, 228, 0.4)'
@@ -22,10 +22,29 @@ class HighlightCard extends Component {
         };
 
         const typographyStyles = {
-            highlight: { fontSize: '2.0rem', fontWeight: 700, marginBottom: 1, whiteSpace: 'normal' },
-            mainTitle: { fontSize: '1.8rem', fontWeight: 700, marginBottom: 1, whiteSpace: 'normal' , wordWrap: 'break-word' },
-            subText: { fontSize: '1rem', color: '#b0b8c0', marginBottom: '0.25rem' },
-            dataText: { fontSize: '1rem', color: '#e0e7ed' },
+            highlight: { 
+                fontSize: { xs: '1.5rem', sm: '1.75rem', md: '2.0rem' }, 
+                fontWeight: 700, 
+                marginBottom: 1, 
+                whiteSpace: 'normal' 
+            },
+            mainTitle: { 
+                fontSize: { xs: '1.25rem', sm: '1.5rem', md: '1.8rem' }, 
+                fontWeight: 700, 
+                marginBottom: 1, 
+                whiteSpace: 'normal', 
+                wordWrap: 'break-word' 
+            },
+            subText: { 
+                fontSize: { xs: '0.875rem', sm: '1rem' }, 
+                color: '#b0b8c0', 
+                marginBottom: '0.25rem' 
+            },
+            dataText: { 
+                fontSize: { xs: '0.875rem', sm: '1rem' }, 
+                color: '#e0e7ed',
+                wordBreak: 'break-word'
+            },
         };
 
         const { highlightName, data } = this.props;
@@ -48,8 +67,8 @@ class HighlightCard extends Component {
                                     <Typography sx={typographyStyles.dataText}>Sport: {data['Sport']}</Typography>
                                     : null
                                 }
-                                <Typography sx={typographyStyles.dataText}>View on Strava:
-                                    <a style={{ color: '#FC4C02' }} target='_blank' rel='noreferrer' href={`https://strava.com/activities/${data['id']}`}>
+                                <Typography sx={typographyStyles.dataText}>View on Strava: {' '}
+                                    <a style={{ color: '#FC4C02', wordBreak: 'break-all' }} target='_blank' rel='noreferrer' href={`https://strava.com/activities/${data['id']}`}>
                                         {`https://strava.com/activities/${data['id']}`}
                                     </a>
                                 </Typography>

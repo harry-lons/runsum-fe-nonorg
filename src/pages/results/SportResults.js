@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { Grid2 } from '@mui/material';
 import StatCard from './statCard';
 import HighlightCard from './highlightCard';
+import Graphs from './Graphs';
 
 class SportResults extends Component {
     render() {
@@ -17,7 +18,16 @@ class SportResults extends Component {
                     Summary Stats
                 </div>
                 <div className='section-break' />
-                <Grid2 container spacing={0} justifyContent="center" sx={{ ml: 5, mr: 5 }}>
+                <Grid2 
+                    container 
+                    spacing={0} 
+                    justifyContent="center" 
+                    sx={{ 
+                        ml: { xs: 0, sm: 2, md: 5 }, 
+                        mr: { xs: 0, sm: 2, md: 5 },
+                        width: { xs: '100%', sm: 'auto' }
+                    }}
+                >
                     {Object.entries(data.stats).map(([key, value]) => (
                         <StatCard
                             key={key} // Unique key for each card
@@ -27,12 +37,17 @@ class SportResults extends Component {
                     ))}
                 </Grid2>
                 <div className='section-header'>
+                    Graphs
+                </div>
+                <div className='section-break' />
+                <Graphs activities={data.activities} sport={this.props.sport} />
+                <div className='section-header'>
                     Highlights
                 </div>
                 <div className='section-break' />
                 {Object.entries(data['highlights']).map(([key, value]) => (
                     value ? (
-                        <HighlightCard highlightName={key} data={value} sport={this.props.sport} />
+                        <HighlightCard key={key} highlightName={key} data={value} sport={this.props.sport} />
                     ) : null
                 ))}
             </div>
