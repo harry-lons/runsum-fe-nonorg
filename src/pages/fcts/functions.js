@@ -76,7 +76,7 @@ export async function getAllInfo(accessToken, MAX_CONCURRENT_REQUESTS) {
         return false;
     }
     let firstActivityDate = allActivities.length > 0 ? allActivities[allActivities.length - 1].start_date_local : null;
-    if(localStorage.getItem('startDate') == new Date(2000, 0, 1)) {
+    if(localStorage.getItem('startDate') === new Date(2000, 0, 1)) {
         // reset start date based on earliest activity
         console.log("jan12000");
         localStorage.setItem('startDate', new Date(firstActivityDate).toISOString());
@@ -332,7 +332,8 @@ async function extractAllSportMetrics(activities, accessToken) {
             'Longest Activity': await findMaxActivity(activities, 'moving_time', accessToken),
             'Most Strenuous Activity': await findMaxActivity(activities, 'suffer_score', accessToken),
             'Peak Heart Rate Activity': await findMaxActivity(activities, 'max_heartrate', accessToken),
-        }
+        },
+        activities: activities
     };
     return allSports;
 }
@@ -376,7 +377,8 @@ async function extractRunMetrics(activities, accessToken) {
             'Longest Run': await findMaxActivity(runningActivities, 'moving_time', accessToken),
             'Most Strenuous Run': await findMaxActivity(runningActivities, 'suffer_score', accessToken),
             'Peak Heart Rate Run': await findMaxActivity(runningActivities, 'max_heartrate', accessToken),
-        }
+        },
+        activities: runningActivities
     };
 }
 
@@ -418,7 +420,8 @@ async function extractBikeMetrics(activities, accessToken) {
             'Longest Ride': await findMaxActivity(bikeActivities, 'moving_time'),
             'Most Strenuous Ride': await findMaxActivity(bikeActivities, 'suffer_score'),
             'Peak Heart Rate Ride': await findMaxActivity(bikeActivities, 'max_heartrate'),
-        }
+        },
+        activities: bikeActivities
     };
 }
 
@@ -459,6 +462,7 @@ async function extractSwimMetrics(activities, accessToken) {
             'Longest Swim': await findMaxActivity(swimActivities, 'moving_time'),
             'Most Strenuous Swim': await findMaxActivity(swimActivities, 'suffer_score'),
             'Max Heart Rate Swim': await findMaxActivity(swimActivities, 'max_heartrate')
-        }
+        },
+        activities: swimActivities
     };
 }

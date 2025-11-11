@@ -198,7 +198,7 @@ class Landing extends Component {
             'Last year': [startOfLastYear, endOfLastYear],
             'All time': [janFirst2000, now]
         };
-        const { loading, data, startDate, endDate, enterBothWarning, dateOrderWarning } = this.state;
+        const { loading, startDate, endDate, enterBothWarning, dateOrderWarning } = this.state;
 
         return (
 
