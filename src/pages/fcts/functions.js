@@ -24,23 +24,58 @@ export async function getAllInfo() {
         // fetch activities from the backend
         const fetchStartTime = performance.now();
         const csrfToken = getCookie('csrf_access_token');
-        console.log('CSRF Token:', csrfToken);
-        console.log('All cookies:', document.cookie);
-        const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/activities?after=${sdEpoch}&before=${edEpoch}`, {
-            credentials: 'include',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': csrfToken,
+
+        const MAX_CONCURRENT_REQUESTS = 5; // todo: test if this is okay, tradeoff between performance and server load/strava rate limiting
+        const PER_PAGE = 200;
+        let page = 1;
+        let hasMore = true;
+        while (hasMore) {
+            const promises = [];
+            // Fetch the next set of pages concurrently
+            for (let i = 0; i < MAX_CONCURRENT_REQUESTS; i++) {
+                const currentPage = page + i;
+                promises.push(fetch(
+                    `${process.env.REACT_APP_BACKEND_URL}/activities?after=${sdEpoch}&before=${edEpoch}&page=${currentPage}`, 
+                    {
+                        method: 'GET',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': csrfToken,
+                        },
+                        credentials: 'include'
+                    }
+                ));
             }
-        });
-        if (!response.ok) {
-            throw new Error('Failed to fetch activities');
+            // Wait for every promise to return
+            const responses = await Promise.all(promises);
+
+            // Parse the results
+            const activitiesBatch = await Promise.all(
+                responses.map(async response => {
+                    if (response.ok) {
+                        const data = await response.json();
+                        return data.activities; // Extract the activities array
+                    }
+                    else throw new Error('Failed to fetch activities');
+                })
+            );
+
+            // Flatten and merge all valid activity arrays
+            const newActivities = activitiesBatch.flat();
+            allActivities = allActivities.concat(newActivities);
+
+            // Assume we're done, unless we find a batch with exactly PER_PAGE activities
+            hasMore = false;
+            if (activitiesBatch.every(batch => batch.length === PER_PAGE)) {
+                // At least one batch returned a full page, so there might be more
+                hasMore = true;
+                page += MAX_CONCURRENT_REQUESTS;
+            }
         }
-        const data = await response.json();
+        
         const fetchEndTime = performance.now();
         const fetchDuration = (fetchEndTime - fetchStartTime).toFixed(2);
         console.log(`Fetch activities took ${fetchDuration}ms`);
-        allActivities = data.activities || [];
 
 
         // Sanity check TODO remove
