@@ -1,24 +1,9 @@
 {
-  "rewrites": [
-    {
-      "source": "/api/:path*",
-      "destination": "https://runsum-be-nonorg.onrender.com/api/:path*"
-    }
-  ],
-  "headers": [
-    {
-      "source": "/api/(.*)",
-      "headers": [
-        {
-          "key": "X-Forwarded-Host",
-          "value": "runsum.harrylons.com"
-        },
-        {
-          "key": "X-Forwarded-Proto",
-          "value": "https"
-        }
-      ]
-    }
-  ]
-}
-
+    "rewrites": [
+      {
+        "source": "/api/(.*)",
+        "destination": "https://runsum-be-nonorg.onrender.com/api/$1"
+      }
+    ]
+  }
+  
