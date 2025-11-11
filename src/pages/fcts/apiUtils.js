@@ -1,14 +1,17 @@
+// Get API base URL - use relative path for same-origin deployment
+// Falls back to REACT_APP_BACKEND_URL for backward compatibility
+const API_BASE_URL = process.env.REACT_APP_BACKEND_URL || '';
+
 // Returns true if the user is authenticated, false otherwise
 // used when a user returns and has token in cookie, even if state/context is lost
 export function is_authenticated() {
     // send a request to the backend to check if we are authenticated
-    let endpointURL = process.env.REACT_APP_BACKEND_URL + '/is-authenticated';
+    let endpointURL = API_BASE_URL + '/api/is-authenticated';
     return fetch(endpointURL, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
             Accept: 'application/json',
-            // 'Access-Control-Allow-Origin': '*',
         },
         credentials: 'include' // include cookie
     })
@@ -18,14 +21,13 @@ export function is_authenticated() {
 export const logout = () => {
     window.location.href = '/';
     let payload = {};
-    let endpointURL = process.env.REACT_APP_BACKEND_URL + '/auth/logout';
+    let endpointURL = API_BASE_URL + '/api/auth/logout';
     return fetch(endpointURL, {
         method: 'POST',
         body: JSON.stringify(payload),
         headers: {
             'Content-Type': 'application/json',
             Accept: 'application/json',
-            // 'Access-Control-Allow-Origin': '*',
         },
         credentials: 'include' // include cookie
     })
@@ -44,7 +46,7 @@ export async function loginWithCode(codeValue) {
     let payload = {
         code: codeValue,
     };
-    let endpointURL = process.env.REACT_APP_BACKEND_URL + '/auth/login';
+    let endpointURL = API_BASE_URL + '/api/auth/login';
     try {
         const response = await fetch(endpointURL, {
             method: 'POST',
@@ -52,7 +54,6 @@ export async function loginWithCode(codeValue) {
             headers: {
                 'Content-Type': 'application/json',
                 Accept: 'application/json',
-                // 'Access-Control-Allow-Origin': '*',
             },
             credentials: 'include' // include cookie so it can be set
         });
@@ -75,14 +76,13 @@ function getCookie(name) {
 }
 
 export async function whoAmI() {
-    let endpointURL = process.env.REACT_APP_BACKEND_URL + '/auth/whoami';
+    let endpointURL = API_BASE_URL + '/api/auth/whoami';
     try {
         const response = await fetch(endpointURL, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
                 Accept: 'application/json',
-                // 'Access-Control-Allow-Origin': '*',
                 'X-CSRF-TOKEN': getCookie('csrf_access_token'),
             },
             credentials: 'include' // include cookie so it can be sent

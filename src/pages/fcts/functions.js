@@ -5,6 +5,10 @@ function getCookie(name) {
     if (parts.length === 2) return parts.pop().split(';').shift();
 }
 
+// Get API base URL - use relative path for same-origin deployment
+// Falls back to REACT_APP_BACKEND_URL for backward compatibility
+const API_BASE_URL = process.env.REACT_APP_BACKEND_URL || '';
+
 export async function getAllInfo() {
 
     let allActivities = [];
@@ -35,7 +39,7 @@ export async function getAllInfo() {
             for (let i = 0; i < MAX_CONCURRENT_REQUESTS; i++) {
                 const currentPage = page + i;
                 promises.push(fetch(
-                    `${process.env.REACT_APP_BACKEND_URL}/activities?after=${sdEpoch}&before=${edEpoch}&page=${currentPage}`, 
+                    `${API_BASE_URL}/api/activities?after=${sdEpoch}&before=${edEpoch}&page=${currentPage}`, 
                     {
                         method: 'GET',
                         headers: {
