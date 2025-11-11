@@ -22,9 +22,9 @@ class Remembered extends Component {
                 <div className='about-description'>
                     <p>We remember you from last time. Unless you'd like to change accounts?</p> 
                 </div>
-                <div style={{display: 'flex', flexDirection: 'row', gap: '15px'}}>
-                    <Button className='logout' onClick={this.handleContinueClick}>Continue as {name}</Button>
-                    <Button className='logout' onClick={this.handleLogoutClick}>Log out</Button>
+                <div style={{display: 'flex', flexDirection: 'row', gap: '15px', flexWrap: 'wrap', justifyContent: 'center'}}>
+                    <Button className='logout' onClick={this.handleContinueClick} sx={{ minWidth: { xs: '250px', sm: 'auto' } }}>Continue as {name}</Button>
+                    <Button className='logout' onClick={this.handleLogoutClick} sx={{ minWidth: { xs: '250px', sm: 'auto' } }}>Log out</Button>
                 </div>
 
             </div>
