@@ -55,7 +55,6 @@ class App extends Component {
   };
 
   render() {
-    const { accessToken } = this.state;
     return (
       <div className="App">
         <Routes>

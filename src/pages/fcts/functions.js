@@ -76,7 +76,7 @@ export async function getAllInfo(accessToken, MAX_CONCURRENT_REQUESTS) {
         return false;
     }
     let firstActivityDate = allActivities.length > 0 ? allActivities[allActivities.length - 1].start_date_local : null;
-    if(localStorage.getItem('startDate') == new Date(2000, 0, 1)) {
+    if(localStorage.getItem('startDate') === new Date(2000, 0, 1)) {
         // reset start date based on earliest activity
         console.log("jan12000");
         localStorage.setItem('startDate', new Date(firstActivityDate).toISOString());

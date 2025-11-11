@@ -60,7 +60,7 @@ function Home(props) {
         };
     
         fetchToken();
-    }, []);
+    }, [navigate, props]);
 
     return (
         <div className='home-page'>
