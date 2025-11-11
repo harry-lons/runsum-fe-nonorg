@@ -5,9 +5,12 @@ import { styled } from '@mui/material/styles';
 import { getAllInfo } from './fcts/functions.js';
 import { Navigate } from 'react-router-dom';
 import SportResults from './results/SportResults.js';
+import { AuthContext } from '../AuthContext';
 
 
 class Results extends Component {
+    static contextType = AuthContext;
+
     state = {
         loading: true,
         currentTab: 0,
@@ -16,9 +19,9 @@ class Results extends Component {
     };
 
     handleLogout = () => {
-        const { logout } = this.props;
+        const { logout } = this.context;
         if (logout) {
-            logout(); // Call the passed logout function
+            logout(); // Call the logout function from AuthContext
         }
     };
 

@@ -1,5 +1,5 @@
 import Button from '@mui/material/Button';
-import React, { Component, useContext } from 'react';
+import React, { useContext } from 'react';
 import {AuthContext} from '../AuthContext';
 
 const Remembered = ( ) => {

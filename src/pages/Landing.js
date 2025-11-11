@@ -3,8 +3,8 @@ import Button from '@mui/material/Button';
 import { ClipLoader } from 'react-spinners';
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import { Navigate, useNavigate } from 'react-router-dom';
-import AuthProvider, { AuthContext } from '../AuthContext';
+import { Navigate } from 'react-router-dom';
+import { AuthContext } from '../AuthContext';
 
 const Landing = () => {
     const [loading, setLoading] = useState(true);
@@ -13,10 +13,8 @@ const Landing = () => {
     const [enterBothWarning, setEnterBothWarning] = useState(false);
     const [dateOrderWarning, setDateOrderWarning] = useState(false);
     const [redirectToResults, setRedirectToResults] = useState(false);
-    const [redirectToNeedLogin, setRedirectToNeedLogin] = useState(false);
 
     const authContext = useContext(AuthContext);
-    const navigate = useNavigate();
 
     useEffect(() => {
         console.log("Auth context changed:", authContext);
@@ -53,10 +51,6 @@ const Landing = () => {
 
     if (redirectToResults) {
         return <Navigate to="/results" />;
-    }
-
-    if (redirectToNeedLogin) {
-        return <Navigate to="/needlogin" />;
     }
 
     const now = new Date();

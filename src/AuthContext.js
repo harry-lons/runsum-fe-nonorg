@@ -8,7 +8,6 @@ export const AuthContext = createContext(null);
 export default function AuthProvider({ children }) {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [firstName, setFirstName] = useState("");
-    const [id, setID] = useState("");
 
     // Try logging in 
     // 1. Try to log in from JWT saved to cookie
@@ -21,7 +20,6 @@ export default function AuthProvider({ children }) {
                 // success
                 // console.log(data)
                 setFirstName(data['first_name'])
-                setID(data['id'])
                 setIsAuthenticated(true)
                 console.log("done setting")
                 return true
@@ -95,7 +93,7 @@ export default function AuthProvider({ children }) {
 
         doLogin()
 
-    }, []);
+    }, [navigate]);
 
     return (
         <AuthContext.Provider

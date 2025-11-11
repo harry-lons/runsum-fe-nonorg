@@ -1,4 +1,4 @@
-import React, { Component, createContext } from 'react';
+import React, { Component } from 'react';
 import './App.scss';
 import { Routes, Route } from 'react-router-dom';
 import Home from './pages/Home';
@@ -12,14 +12,6 @@ import FAQ from './pages/FAQ';
 import AuthContext from './AuthContext';
 
 class App extends Component {
-  
-  getFirstName = () => {
-    return this.state.firstName;
-  }
-  setFirstName = (newFirstName) => {
-    this.setState({ firstName: newFirstName });
-  }
-
   render() {
     return (
       <AuthContext>
@@ -39,11 +31,7 @@ class App extends Component {
             />
             <Route
               path="/remembered"
-              element={<Remembered
-                logout={this.logout}
-                getFirstName={this.getFirstName}
-              />
-              }
+              element={<Remembered />}
             />
             <Route
               path="/FAQ"
