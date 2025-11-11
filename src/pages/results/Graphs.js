@@ -436,7 +436,7 @@ class Graphs extends Component {
         }
 
         return (
-            <div className='graphs-container' style={{ marginTop: '20px' }}>
+            <div className='graphs-container' style={{ marginTop: '20px', width: '100%', maxWidth: '1400px' }}>
                 {sport === 'allSports' && (
                     <div style={{ 
                         backgroundColor: 'rgba(252, 76, 2, 0.1)', 
@@ -444,7 +444,9 @@ class Graphs extends Component {
                         borderRadius: '8px', 
                         padding: '15px', 
                         marginBottom: '20px',
-                        color: '#c0c8d0'
+                        color: '#c0c8d0',
+                        marginLeft: '10px',
+                        marginRight: '10px'
                     }}>
                         <strong style={{ color: '#FC4C02' }}>Note:</strong> Pace results for "All Sports" combine different activity types (running, cycling, swimming, etc.) and may show unusual patterns since each sport has different pace/speed metrics.
                     </div>
@@ -455,7 +457,8 @@ class Graphs extends Component {
                     flexWrap: 'wrap',
                     gap: '20px',
                     marginBottom: '20px',
-                    justifyContent: 'space-between'
+                    justifyContent: 'space-between',
+                    padding: '0 10px'
                 }}>
                     {/* Distance Over Time */}
                     {distanceData.length > 0 && (
@@ -465,7 +468,7 @@ class Graphs extends Component {
                             borderRadius: '8px',
                             border: '1px solid #2a3f5f',
                             flex: this.state.expandedGraphs.distance ? '1 1 100%' : '1 1 calc(33.333% - 14px)',
-                            minWidth: '350px',
+                            minWidth: window.innerWidth < 768 ? '100%' : '350px',
                             position: 'relative'
                         }}>
                             <button
@@ -498,10 +501,10 @@ class Graphs extends Component {
                             >
                                 {this.state.expandedGraphs.distance ? <MdZoomInMap size={20} /> : <MdZoomOutMap size={20} />}
                             </button>
-                            <h3 style={{ color: '#c0c8d0', textAlign: 'center', marginBottom: '15px', paddingRight: '40px' }}>
+                            <h3 style={{ color: '#c0c8d0', textAlign: 'center', marginBottom: '15px', paddingRight: '40px', fontSize: window.innerWidth < 768 ? '1.2rem' : '1.5rem' }}>
                                 Distance Over Time
                             </h3>
-                            <ResponsiveContainer width="100%" height={300}>
+                            <ResponsiveContainer width="100%" height={window.innerWidth < 768 ? 250 : 300}>
                                 <LineChart data={distanceData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
                                     <CartesianGrid strokeDasharray="3 3" stroke="#2a3f5f" />
                                     <XAxis 
@@ -545,7 +548,7 @@ class Graphs extends Component {
                             borderRadius: '8px',
                             border: '1px solid #2a3f5f',
                             flex: this.state.expandedGraphs.frequency ? '1 1 100%' : '1 1 calc(33.333% - 14px)',
-                            minWidth: '350px',
+                            minWidth: window.innerWidth < 768 ? '100%' : '350px',
                             position: 'relative'
                         }}>
                             <button
@@ -578,10 +581,10 @@ class Graphs extends Component {
                             >
                                 {this.state.expandedGraphs.frequency ? <MdZoomInMap size={20} /> : <MdZoomOutMap size={20} />}
                             </button>
-                            <h3 style={{ color: '#c0c8d0', textAlign: 'center', marginBottom: '15px', paddingRight: '40px' }}>
+                            <h3 style={{ color: '#c0c8d0', textAlign: 'center', marginBottom: '15px', paddingRight: '40px', fontSize: window.innerWidth < 768 ? '1.2rem' : '1.5rem' }}>
                                 Activity Frequency
                             </h3>
-                            <ResponsiveContainer width="100%" height={300}>
+                            <ResponsiveContainer width="100%" height={window.innerWidth < 768 ? 250 : 300}>
                                 <BarChart data={frequencyData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
                                     <CartesianGrid strokeDasharray="3 3" stroke="#2a3f5f" />
                                     <XAxis 
@@ -622,7 +625,7 @@ class Graphs extends Component {
                             borderRadius: '8px',
                             border: '1px solid #2a3f5f',
                             flex: this.state.expandedGraphs.pace ? '1 1 100%' : '1 1 calc(33.333% - 14px)',
-                            minWidth: '350px',
+                            minWidth: window.innerWidth < 768 ? '100%' : '350px',
                             position: 'relative'
                         }}>
                             <button
@@ -655,10 +658,10 @@ class Graphs extends Component {
                             >
                                 {this.state.expandedGraphs.pace ? <MdZoomInMap size={20} /> : <MdZoomOutMap size={20} />}
                             </button>
-                            <h3 style={{ color: '#c0c8d0', textAlign: 'center', marginBottom: '15px', paddingRight: '40px' }}>
+                            <h3 style={{ color: '#c0c8d0', textAlign: 'center', marginBottom: '15px', paddingRight: '40px', fontSize: window.innerWidth < 768 ? '1.2rem' : '1.5rem' }}>
                                 {performanceLabel} Over Time
                             </h3>
-                            <ResponsiveContainer width="100%" height={300}>
+                            <ResponsiveContainer width="100%" height={window.innerWidth < 768 ? 250 : 300}>
                                 <LineChart data={paceData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
                                     <CartesianGrid strokeDasharray="3 3" stroke="#2a3f5f" />
                                     <XAxis 
