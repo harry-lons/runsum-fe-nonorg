@@ -1,3 +1,10 @@
+// Helper function to get cookie value by name
+function getCookie(name) {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(';').shift();
+}
+
 export async function getAllInfo() {
 
     let allActivities = [];
@@ -15,11 +22,25 @@ export async function getAllInfo() {
         console.log('endDate', edEpoch);
         
         // fetch activities from the backend
-        const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/activities?after=${sdEpoch}&before=${edEpoch}`);
+        const fetchStartTime = performance.now();
+        const csrfToken = getCookie('csrf_access_token');
+        console.log('CSRF Token:', csrfToken);
+        console.log('All cookies:', document.cookie);
+        const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/activities?after=${sdEpoch}&before=${edEpoch}`, {
+            credentials: 'include',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': csrfToken,
+            }
+        });
         if (!response.ok) {
             throw new Error('Failed to fetch activities');
         }
-        allActivities = await response.json();
+        const data = await response.json();
+        const fetchEndTime = performance.now();
+        const fetchDuration = (fetchEndTime - fetchStartTime).toFixed(2);
+        console.log(`Fetch activities took ${fetchDuration}ms`);
+        allActivities = data.activities || [];
 
 
         // Sanity check TODO remove
@@ -33,7 +54,7 @@ export async function getAllInfo() {
     let firstActivityDate = allActivities.length > 0 ? allActivities[allActivities.length - 1].start_date_local : null;
     if(localStorage.getItem('startDate') == new Date(2000, 0, 1)) {
         // reset start date based on earliest activity
-        console.log("jan12000");
+        // console.log("jan12000");
         localStorage.setItem('startDate', new Date(firstActivityDate).toISOString());
     }
 
