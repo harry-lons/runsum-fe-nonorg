@@ -7,7 +7,7 @@ class Graphs extends Component {
         expandedGraphs: {
             distance: false,
             frequency: false,
-            pace: false
+            pace: true  // Third graph expanded by default on desktop
         }
     };
 
@@ -444,9 +444,7 @@ class Graphs extends Component {
                         borderRadius: '8px', 
                         padding: '15px', 
                         marginBottom: '20px',
-                        color: '#c0c8d0',
-                        marginLeft: '10px',
-                        marginRight: '10px'
+                        color: '#c0c8d0'
                     }}>
                         <strong style={{ color: '#FC4C02' }}>Note:</strong> Pace results for "All Sports" combine different activity types (running, cycling, swimming, etc.) and may show unusual patterns since each sport has different pace/speed metrics.
                     </div>
@@ -457,18 +455,21 @@ class Graphs extends Component {
                     flexWrap: 'wrap',
                     gap: '20px',
                     marginBottom: '20px',
-                    justifyContent: 'space-between',
-                    padding: '0 10px'
+                    justifyContent: 'space-between'
                 }}>
                     {/* Distance Over Time */}
                     {distanceData.length > 0 && (
                         <div className='graph-card' style={{ 
                             backgroundColor: 'rgba(30, 42, 58, 0.5)', 
-                            padding: '20px', 
+                            padding: window.innerWidth < 768 ? '15px 10px' : '20px', 
                             borderRadius: '8px',
                             border: '1px solid #2a3f5f',
-                            flex: this.state.expandedGraphs.distance ? '1 1 100%' : '1 1 calc(33.333% - 14px)',
-                            minWidth: window.innerWidth < 768 ? '100%' : '350px',
+                            flex: window.innerWidth < 768 
+                                ? '1 1 100%'  // Always full width on mobile
+                                : (this.state.expandedGraphs.distance ? '1 1 100%' : '1 1 calc(33.333% - 14px)'),
+                            minWidth: window.innerWidth < 768 ? '0' : '350px',
+                            maxWidth: '100%',
+                            boxSizing: 'border-box',
                             position: 'relative'
                         }}>
                             <button
@@ -505,7 +506,13 @@ class Graphs extends Component {
                                 Distance Over Time
                             </h3>
                             <ResponsiveContainer width="100%" height={window.innerWidth < 768 ? 250 : 300}>
-                                <LineChart data={distanceData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+                                <LineChart 
+                                    data={distanceData} 
+                                    margin={window.innerWidth < 768 
+                                        ? { top: 5, right: 5, left: 0, bottom: 5 }
+                                        : { top: 5, right: 30, left: 20, bottom: 5 }
+                                    }
+                                >
                                     <CartesianGrid strokeDasharray="3 3" stroke="#2a3f5f" />
                                     <XAxis 
                                         dataKey="date" 
@@ -544,11 +551,15 @@ class Graphs extends Component {
                     {frequencyData.length > 0 && (
                         <div className='graph-card' style={{ 
                             backgroundColor: 'rgba(30, 42, 58, 0.5)', 
-                            padding: '20px', 
+                            padding: window.innerWidth < 768 ? '15px 10px' : '20px', 
                             borderRadius: '8px',
                             border: '1px solid #2a3f5f',
-                            flex: this.state.expandedGraphs.frequency ? '1 1 100%' : '1 1 calc(33.333% - 14px)',
-                            minWidth: window.innerWidth < 768 ? '100%' : '350px',
+                            flex: window.innerWidth < 768 
+                                ? '1 1 100%'  // Always full width on mobile
+                                : (this.state.expandedGraphs.frequency ? '1 1 100%' : '1 1 calc(33.333% - 14px)'),
+                            minWidth: window.innerWidth < 768 ? '0' : '350px',
+                            maxWidth: '100%',
+                            boxSizing: 'border-box',
                             position: 'relative'
                         }}>
                             <button
@@ -585,7 +596,13 @@ class Graphs extends Component {
                                 Activity Frequency
                             </h3>
                             <ResponsiveContainer width="100%" height={window.innerWidth < 768 ? 250 : 300}>
-                                <BarChart data={frequencyData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+                                <BarChart 
+                                    data={frequencyData} 
+                                    margin={window.innerWidth < 768 
+                                        ? { top: 5, right: 5, left: 0, bottom: 5 }
+                                        : { top: 5, right: 30, left: 20, bottom: 5 }
+                                    }
+                                >
                                     <CartesianGrid strokeDasharray="3 3" stroke="#2a3f5f" />
                                     <XAxis 
                                         dataKey="week" 
@@ -621,11 +638,15 @@ class Graphs extends Component {
                     {paceData.length > 0 && (
                         <div className='graph-card' style={{ 
                             backgroundColor: 'rgba(30, 42, 58, 0.5)', 
-                            padding: '20px', 
+                            padding: window.innerWidth < 768 ? '15px 10px' : '20px', 
                             borderRadius: '8px',
                             border: '1px solid #2a3f5f',
-                            flex: this.state.expandedGraphs.pace ? '1 1 100%' : '1 1 calc(33.333% - 14px)',
-                            minWidth: window.innerWidth < 768 ? '100%' : '350px',
+                            flex: window.innerWidth < 768 
+                                ? '1 1 100%'  // Always full width on mobile
+                                : (this.state.expandedGraphs.pace ? '1 1 100%' : '1 1 calc(33.333% - 14px)'),
+                            minWidth: window.innerWidth < 768 ? '0' : '350px',
+                            maxWidth: '100%',
+                            boxSizing: 'border-box',
                             position: 'relative'
                         }}>
                             <button
@@ -662,7 +683,13 @@ class Graphs extends Component {
                                 {performanceLabel} Over Time
                             </h3>
                             <ResponsiveContainer width="100%" height={window.innerWidth < 768 ? 250 : 300}>
-                                <LineChart data={paceData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+                                <LineChart 
+                                    data={paceData} 
+                                    margin={window.innerWidth < 768 
+                                        ? { top: 5, right: 5, left: 0, bottom: 5 }
+                                        : { top: 5, right: 30, left: 20, bottom: 5 }
+                                    }
+                                >
                                     <CartesianGrid strokeDasharray="3 3" stroke="#2a3f5f" />
                                     <XAxis 
                                         dataKey="date" 
