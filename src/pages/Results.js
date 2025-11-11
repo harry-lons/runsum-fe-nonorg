@@ -5,9 +5,12 @@ import { styled } from '@mui/material/styles';
 import { getAllInfo } from './fcts/functions.js';
 import { Navigate } from 'react-router-dom';
 import SportResults from './results/SportResults.js';
+import { AuthContext } from '../AuthContext';
 
 
 class Results extends Component {
+    static contextType = AuthContext;
+
     state = {
         loading: true,
         currentTab: 0,
@@ -16,9 +19,9 @@ class Results extends Component {
     };
 
     handleLogout = () => {
-        const { logout } = this.props;
+        const { logout } = this.context;
         if (logout) {
-            logout(); // Call the passed logout function
+            logout(); // Call the logout function from AuthContext
         }
     };
 
@@ -94,17 +97,10 @@ class Results extends Component {
         if (!localStorage.getItem('endDate')) {
             window.location.href = '/landing';
         }
-        const accessToken = await this.props.getAccessToken();
-        if (!accessToken) {
-            console.log("no access token :(");
-            this.setState({ redirectToLanding: true })
-        }
+        
         // refresh our access token
         try {
-            // TODO: dynamically adjust the concurrent_requests based on the timeline length for better performance 
-            // (we don't need to send a ton of requests for smaller time frames, but for all time maybe increase to 10
-            const concurrent_requests = 5;
-            const result = await getAllInfo(accessToken, concurrent_requests);
+            const result = await getAllInfo();
             if (result && result['allSports']) {
                 console.log("setting result state with function data");
                 this.setState({ data: result });

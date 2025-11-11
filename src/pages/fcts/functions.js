@@ -1,9 +1,11 @@
-export async function getAllInfo(accessToken, MAX_CONCURRENT_REQUESTS) {
-    /* Number of activities requested in each call 
-        Better performance could be achieved with smaller pages, but it's important to be mindful of strava's rate limits. 
-        Fetching 200 activities typically takes around 2 seconds, an acceptable latency 
-    */
-    const PER_PAGE = 200;
+// Helper function to get cookie value by name
+function getCookie(name) {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(';').shift();
+}
+
+export async function getAllInfo() {
 
     let allActivities = [];
     try {
@@ -18,22 +20,29 @@ export async function getAllInfo(accessToken, MAX_CONCURRENT_REQUESTS) {
         const edEpoch = Math.floor(endDateConverted.getTime() / 1000);
         console.log('startDate: ', sdEpoch);
         console.log('endDate', edEpoch);
+        
+        // fetch activities from the backend
+        const fetchStartTime = performance.now();
+        const csrfToken = getCookie('csrf_access_token');
+
+        const MAX_CONCURRENT_REQUESTS = 5; // todo: test if this is okay, tradeoff between performance and server load/strava rate limiting
+        const PER_PAGE = 200;
         let page = 1;
         let hasMore = true;
-
         while (hasMore) {
             const promises = [];
             // Fetch the next set of pages concurrently
             for (let i = 0; i < MAX_CONCURRENT_REQUESTS; i++) {
                 const currentPage = page + i;
                 promises.push(fetch(
-                    `https://www.strava.com/api/v3/athlete/activities?after=${sdEpoch}&before=${edEpoch}&page=${currentPage}&per_page=${PER_PAGE}&nocache=${new Date().getTime()}`, 
+                    `${process.env.REACT_APP_BACKEND_URL}/activities?after=${sdEpoch}&before=${edEpoch}&page=${currentPage}`, 
                     {
                         method: 'GET',
                         headers: {
                             'Content-Type': 'application/json',
-                            'Authorization': 'Bearer ' + accessToken,
+                            'X-CSRF-TOKEN': csrfToken,
                         },
+                        credentials: 'include'
                     }
                 ));
             }
@@ -43,7 +52,10 @@ export async function getAllInfo(accessToken, MAX_CONCURRENT_REQUESTS) {
             // Parse the results
             const activitiesBatch = await Promise.all(
                 responses.map(async response => {
-                    if (response.ok) return response.json();
+                    if (response.ok) {
+                        const data = await response.json();
+                        return data.activities; // Extract the activities array
+                    }
                     else throw new Error('Failed to fetch activities');
                 })
             );
@@ -52,22 +64,21 @@ export async function getAllInfo(accessToken, MAX_CONCURRENT_REQUESTS) {
             const newActivities = activitiesBatch.flat();
             allActivities = allActivities.concat(newActivities);
 
-            // Stop if any of the batches returned an empty list
-            if (activitiesBatch.some(batch => batch.length === 0)) {
-                // we have fetched all relevant activities
-                hasMore = false;
-            } else {
-                // console.log("No batch length was 0. Batch lengths:");
-                // activitiesBatch.forEach((batch, index) => {
-                //     console.log(`Batch ${index + 1} length: ${batch.length}`);
-                // });
-                // console.log(`Moving to pages ${page} to ${page + MAX_CONCURRENT_REQUESTS - 1}`);
+            // Assume we're done, unless we find a batch with exactly PER_PAGE activities
+            hasMore = false;
+            if (activitiesBatch.every(batch => batch.length === PER_PAGE)) {
+                // At least one batch returned a full page, so there might be more
+                hasMore = true;
                 page += MAX_CONCURRENT_REQUESTS;
             }
         }
+        
+        const fetchEndTime = performance.now();
+        const fetchDuration = (fetchEndTime - fetchStartTime).toFixed(2);
+        console.log(`Fetch activities took ${fetchDuration}ms`);
 
 
-        // Handle or return the collected activities
+        // Sanity check TODO remove
         console.log(allActivities);
 
     } catch (error) {
@@ -78,16 +89,16 @@ export async function getAllInfo(accessToken, MAX_CONCURRENT_REQUESTS) {
     let firstActivityDate = allActivities.length > 0 ? allActivities[allActivities.length - 1].start_date_local : null;
     if(localStorage.getItem('startDate') === new Date(2000, 0, 1)) {
         // reset start date based on earliest activity
-        console.log("jan12000");
+        // console.log("jan12000");
         localStorage.setItem('startDate', new Date(firstActivityDate).toISOString());
     }
 
     try {
         const payload = {
-            allSports: await extractAllSportMetrics(allActivities, accessToken),
-            run: await extractRunMetrics(allActivities, accessToken),
-            ride: await extractBikeMetrics(allActivities, accessToken),
-            swim: await extractSwimMetrics(allActivities, accessToken),
+            allSports: await extractAllSportMetrics(allActivities),
+            run: await extractRunMetrics(allActivities),
+            ride: await extractBikeMetrics(allActivities),
+            swim: await extractSwimMetrics(allActivities),
             firstActivityDate: allActivities.length > 0 ? allActivities[allActivities.length - 1].start_date_local : null,
         };
         console.log(payload);
