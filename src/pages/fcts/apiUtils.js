@@ -8,7 +8,7 @@ export function is_authenticated() {
         headers: {
             'Content-Type': 'application/json',
             Accept: 'application/json',
-            'Access-Control-Allow-Origin': '*',
+            // 'Access-Control-Allow-Origin': '*',
         },
         credentials: 'include' // include cookie
     })
@@ -25,7 +25,7 @@ export const logout = () => {
         headers: {
             'Content-Type': 'application/json',
             Accept: 'application/json',
-            'Access-Control-Allow-Origin': '*',
+            // 'Access-Control-Allow-Origin': '*',
         },
         credentials: 'include' // include cookie
     })
@@ -52,7 +52,7 @@ export async function loginWithCode(codeValue) {
             headers: {
                 'Content-Type': 'application/json',
                 Accept: 'application/json',
-                'Access-Control-Allow-Origin': '*',
+                // 'Access-Control-Allow-Origin': '*',
             },
             credentials: 'include' // include cookie so it can be set
         });
@@ -82,7 +82,7 @@ export async function whoAmI() {
             headers: {
                 'Content-Type': 'application/json',
                 Accept: 'application/json',
-                'Access-Control-Allow-Origin': '*',
+                // 'Access-Control-Allow-Origin': '*',
                 'X-CSRF-TOKEN': getCookie('csrf_access_token'),
             },
             credentials: 'include' // include cookie so it can be sent
