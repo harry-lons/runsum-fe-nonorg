@@ -83,8 +83,7 @@ class Results extends Component {
         top: 0,
         zIndex: 10,
         backgroundColor: '#282c34',
-        width: '100vw',  // Full viewport width
-        left: 0,         // Align to the left of the viewport
+        width: '100%',  // Full width of parent container
         margin: 0,       // Remove any margin
         padding: 0,      // Remove any padding
     });
