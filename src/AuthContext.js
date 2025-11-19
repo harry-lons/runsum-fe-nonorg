@@ -1,5 +1,5 @@
 import { createContext, useEffect, useState } from "react";
-import { logout, loginWithCode, whoAmI } from './pages/fcts/apiUtils.js';
+import { logout as apiLogout, loginWithCode, whoAmI } from './pages/fcts/apiUtils.js';
 import { useNavigate } from 'react-router-dom';
 
 export const AuthContext = createContext(null);
@@ -66,14 +66,19 @@ export default function AuthProvider({ children }) {
 
     const navigate = useNavigate()
     useEffect(() => {
-        // if we are on the /needlogin page, don't even try to log in
-        if (window.location.pathname === "/needlogin") return;
+        // if we are on the /needlogin page or /about page, don't even try to log in
+        if (window.location.pathname === "/needlogin" || window.location.pathname === "/about") return;
+
+        console.log("AuthContext: useEffect checking login status. Path:", window.location.pathname);
 
         const doLogin = async () => {
             try {
                 const success = await login();
+                console.log("AuthContext: doLogin finished. Success:", success);
+                
                 if(window.location.pathname === "/"){
                     if(success){
+                        console.log("AuthContext: Redirecting to /remembered");
                         navigate("/remembered")
                     }
                     else {
@@ -94,6 +99,15 @@ export default function AuthProvider({ children }) {
         doLogin()
 
     }, [navigate]);
+
+    const logout = async () => {
+        console.log("AuthContext: logout triggered");
+        await apiLogout();
+        console.log("AuthContext: apiLogout finished, clearing local state");
+        setIsAuthenticated(false);
+        setFirstName("");
+        navigate("/");
+    }
 
     return (
         <AuthContext.Provider

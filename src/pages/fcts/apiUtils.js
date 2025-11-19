@@ -19,7 +19,10 @@ export function is_authenticated() {
 
 // Handle logout by sending an empty request to the logout endpoint which will clear the cookie for us
 export const logout = () => {
-    window.location.href = '/';
+    console.log("Sending logout request...");
+    const csrfToken = getCookie('csrf_access_token');
+    console.log("CSRF Token found in cookie:", csrfToken ? "Yes (masked)" : "NO - Token is undefined/null");
+    
     let payload = {};
     let endpointURL = API_BASE_URL + '/api/auth/logout';
     return fetch(endpointURL, {
@@ -28,13 +31,16 @@ export const logout = () => {
         headers: {
             'Content-Type': 'application/json',
             Accept: 'application/json',
+            'X-CSRF-TOKEN': csrfToken,
         },
         credentials: 'include' // include cookie
     })
         .then(response => {
+            console.log("Logout response status:", response.status);
             if (!response.ok) {
                 throw new Error('Network response was not ok');
             }
+            console.log("Logout request successful");
         })
         .catch(error => {
             // Handle errors
